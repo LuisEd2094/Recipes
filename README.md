@@ -1,0 +1,1 @@
+A first try to make a more functional website. Themed around recipes and will mostly focus on indexing and being easy to navigate through
