@@ -30,6 +30,8 @@ fun RecipeListScreen(
                     recipeWithIngredients.ingredients.forEach {
                         Text("- ${it.name}")
                     }
+                    Text("Instructions:")
+                    Text(recipeWithIngredients.recipe.instructions)
                 }
             }
         }

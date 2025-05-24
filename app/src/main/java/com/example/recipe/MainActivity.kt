@@ -1,6 +1,7 @@
 package com.example.recipe
 
 import com.example.recipe.models.*
+import com.example.recipe.RecipeViewModel.*
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,20 +19,20 @@ import com.example.recipe.ui.theme.RecipeTheme
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 
 
 
 
 class MainActivity : ComponentActivity() {
-    private lateinit var db: AppDatabase
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        db = DatabaseProvider.getDatabase(this)
+        val db = DatabaseProvider.getDatabase(applicationContext)
 
+        // Create ViewModel instance here using db
+        val recipeViewModel = RecipeViewModel(db)
         enableEdgeToEdge()
         setContent {
             RecipeTheme {
@@ -39,9 +40,21 @@ class MainActivity : ComponentActivity() {
                     // Keep track of which screen to show
                     var inner = innerPadding
                     var showAddRecipe by remember { mutableStateOf(false) }
+                    val recipes by remember {
+                        derivedStateOf { recipeViewModel.recipes }
+                    }
 
-                    // Dummy list for now
-                    val recipes = remember { mutableStateListOf<RecipeWithIngredients>() }
+
+                    LaunchedEffect(recipes) {
+                        println("Current recipes in DB:")
+                        recipes.forEach { recipeWithIngredients ->
+                            println("Recipe: ${recipeWithIngredients.recipe.name}")
+                            println("Ingredients:")
+                            recipeWithIngredients.ingredients.forEach {
+                                println("- ${it.name}")
+                            }
+                        }
+                    }
 
                     if (showAddRecipe) {
                         AddRecipeScreen { recipeName, ingredients, instructions ->
