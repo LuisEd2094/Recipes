@@ -8,36 +8,36 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.recipe.models.RecipeWithIngredients
+import com.example.recipe.models.RecipeWithFullIngredients
 import com.example.recipe.models.Recipe
-
 
 
 @Composable
 fun RecipeListScreen(
-    recipes: List<RecipeWithIngredients>,
-    onRecipeSelected: (RecipeWithIngredients) -> Unit,
+    recipes: List<RecipeWithFullIngredients>,
+    onRecipeSelected: (RecipeWithFullIngredients) -> Unit,
     onDelete: (Recipe) -> Unit
-
 ) {
     LazyColumn(modifier = Modifier.padding(16.dp)) {
-        items(recipes) { recipeWithIngredients ->
+        items(recipes) { recipeWithFullIngredients ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .clickable { onRecipeSelected(recipeWithIngredients) }
+                    .clickable { onRecipeSelected(recipeWithFullIngredients) }
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(recipeWithIngredients.recipe.name, style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
+                    Text(recipeWithFullIngredients.recipe.name, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text("Ingredients:")
-                    recipeWithIngredients.ingredients.forEach {
-                        Text("- ${it.name}")
+                    recipeWithFullIngredients.ingredients.forEach {
+                        Text("- ${it.ingredient.name}: ${it.quantity} ${it.measurement.name}")
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text("Instructions:")
-                    Text(recipeWithIngredients.recipe.instructions)
-                    Button(onClick = { onDelete(recipeWithIngredients.recipe) }) {
+                    Text(recipeWithFullIngredients.recipe.instructions)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = { onDelete(recipeWithFullIngredients.recipe) }) {
                         Text("Delete")
                     }
                 }

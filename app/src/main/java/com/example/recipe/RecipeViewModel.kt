@@ -6,24 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+
 
 class RecipeViewModel(private val db: AppDatabase) : ViewModel() {
-    // This holds the list of recipes your UI will observe
-    private val _recipes = mutableStateListOf<RecipeWithIngredients>()
-    val recipes: List<RecipeWithIngredients> get() = _recipes
+    private val _recipes = mutableStateListOf<RecipeWithFullIngredients>()
+    val recipes: List<RecipeWithFullIngredients> get() = _recipes
 
     init {
-        loadRecipes()
+        reload()
     }
 
     fun reload() {
-        loadRecipes()
-    }
-    private fun loadRecipes() {
         viewModelScope.launch {
-            val list = db.recipeIngredientDao().getAllRecipesWithIngredients()
+            val list = db.recipeIngredientDao().getAllRecipesWithFullIngredients()
             _recipes.clear()
             _recipes.addAll(list)
         }

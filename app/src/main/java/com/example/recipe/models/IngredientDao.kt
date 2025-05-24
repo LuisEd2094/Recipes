@@ -5,7 +5,4 @@ import androidx.room.*
 interface IngredientDao {
     @Insert
     suspend fun insert(ingredient: Ingredient): Long
-
-    @Query("SELECT * FROM Ingredient")
-    suspend fun getAll(): List<Ingredient>
 }
