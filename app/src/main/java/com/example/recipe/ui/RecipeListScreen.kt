@@ -9,11 +9,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.recipe.models.RecipeWithIngredients
+import com.example.recipe.models.Recipe
+
+
 
 @Composable
 fun RecipeListScreen(
     recipes: List<RecipeWithIngredients>,
-    onRecipeSelected: (RecipeWithIngredients) -> Unit
+    onRecipeSelected: (RecipeWithIngredients) -> Unit,
+    onDelete: (Recipe) -> Unit
+
 ) {
     LazyColumn(modifier = Modifier.padding(16.dp)) {
         items(recipes) { recipeWithIngredients ->
@@ -32,6 +37,9 @@ fun RecipeListScreen(
                     }
                     Text("Instructions:")
                     Text(recipeWithIngredients.recipe.instructions)
+                    Button(onClick = { onDelete(recipeWithIngredients.recipe) }) {
+                        Text("Delete")
+                    }
                 }
             }
         }

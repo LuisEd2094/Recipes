@@ -18,6 +18,9 @@ class RecipeViewModel(private val db: AppDatabase) : ViewModel() {
         loadRecipes()
     }
 
+    fun reload() {
+        loadRecipes()
+    }
     private fun loadRecipes() {
         viewModelScope.launch {
             val list = db.recipeIngredientDao().getAllRecipesWithIngredients()

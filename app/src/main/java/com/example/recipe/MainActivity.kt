@@ -21,6 +21,9 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.*
+
 
 
 
@@ -37,56 +40,62 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // Keep track of which screen to show
-                    var inner = innerPadding
-                    var showAddRecipe by remember { mutableStateOf(false) }
-                    val recipes by remember {
-                        derivedStateOf { recipeViewModel.recipes }
-                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .padding(top = 10.dp)
+                            .fillMaxSize()
+                    ) {
+                        var showAddRecipe by remember { mutableStateOf(false) }
+                        val recipes by remember { derivedStateOf { recipeViewModel.recipes } }
 
-
-                    LaunchedEffect(recipes) {
-                        println("Current recipes in DB:")
-                        recipes.forEach { recipeWithIngredients ->
-                            println("Recipe: ${recipeWithIngredients.recipe.name}")
-                            println("Ingredients:")
-                            recipeWithIngredients.ingredients.forEach {
-                                println("- ${it.name}")
-                            }
+                        LaunchedEffect(recipes) {
+                            // your print logs here...
                         }
-                    }
 
-                    if (showAddRecipe) {
-                        AddRecipeScreen { recipeName, ingredients, instructions ->
-                            lifecycleScope.launch {
-
-                                val recipeId = db.recipeDao().insert(Recipe(name = recipeName, instructions = instructions))
-                                ingredients.forEach { (ingredient, measurement) ->
-                                    val ingredientId = db.ingredientDao().insert(ingredient)
-                                    val measurementId = db.measurementDao().insert(measurement)
-                                    db.recipeIngredientDao().insert(
-                                        RecipeIngredient(recipeId, ingredientId, measurementId, measurement.quantity)
-                                    )
+                        if (showAddRecipe) {
+                            AddRecipeScreen { recipeName, ingredients, instructions ->
+                                lifecycleScope.launch {
+                                    val recipeId = db.recipeDao().insert(Recipe(name = recipeName, instructions = instructions))
+                                    ingredients.forEach { (ingredient, measurement) ->
+                                        val ingredientId = db.ingredientDao().insert(ingredient)
+                                        val measurementId = db.measurementDao().insert(measurement)
+                                        db.recipeIngredientDao().insert(
+                                            RecipeIngredient(recipeId, ingredientId, measurementId, measurement.quantity)
+                                        )
+                                    }
+                                    recipeViewModel.reload()
+                                    showAddRecipe = false
                                 }
-                                showAddRecipe = false
                             }
-                        }
-                    } else {
-                        RecipeListScreen(
-                            recipes = recipes,
-                            onRecipeSelected = {
-                                // TODO: Handle recipe selection
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(12.dp) // spacing between list and button
+                            ) {
+                                Button(
+                                    onClick = { showAddRecipe = true },
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                ) {
+                                    Text("Add New Recipe")
+                                }
+                                RecipeListScreen(
+                                    recipes = recipes,
+                                    onRecipeSelected = { /*...*/ },
+                                    onDelete = { recipe ->
+                                        lifecycleScope.launch {
+                                            db.recipeDao().delete(recipe)
+                                            recipeViewModel.reload()
+                                        }
+                                    }
+                                )
+
                             }
-                        )
-                        // Button to navigate to AddRecipeScreen
-                        Button(
-                            onClick = { showAddRecipe = true },
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text("Add New Recipe")
                         }
                     }
+
                 }
+
             }
         }
     }
@@ -97,6 +106,6 @@ class MainActivity : ComponentActivity() {
 fun DefaultPreview() {
     RecipeTheme {
         // You can preview your list screen here or add screen
-        RecipeListScreen(recipes = emptyList(), onRecipeSelected = {})
+        RecipeListScreen(recipes = emptyList(), onRecipeSelected = {}, onDelete = {})
     }
 }
